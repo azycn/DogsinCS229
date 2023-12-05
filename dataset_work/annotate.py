@@ -23,10 +23,12 @@ def main():
     rs = []
     img_files = []
     # get all dog ids in dataset
-    for folder in [TARGET_DATASET_PATH + f'/{p}/Images'for p in SELECT_DATASETS]:
+    for folder in [TARGET_DATASET_PATH + f'{p}/Images'for p in SELECT_DATASETS]:
         for breed in os.listdir(folder):
             if breed != '.DS_Store':
-                img_files += [folder + f'/{breed}/' + i for i in os.listdir(folder + f'/{breed}')]
+                for i in os.listdir(folder + f'/{breed}'):
+                    if i != ".DS_Store":
+                        img_files += [folder + f'/{breed}/' + i ]
 
     personalityfile = open('./personalities.json', 'r')
     personalities = json.load(personalityfile)

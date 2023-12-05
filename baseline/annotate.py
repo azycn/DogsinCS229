@@ -2,11 +2,15 @@ import os
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import pandas as pd
+import tkinter as tk
+from PIL import Image, ImageTk
+import os
+
 # import tkinter as tk
 # from tkinter import Entry, Button
 # from PIL import Image, ImageTk
 
-DATASET_PATH = './small_stanforddogdataset/'
+DATASET_PATH = './../small_stanforddogdataset/'
 
 # def load_next_image():
     
@@ -37,18 +41,30 @@ def main():
     rs = []
     num_dogs = len(all_ids)
     for i, id in enumerate(list(all_ids)):
+        if i > 5:
+            break
+        win = tk.Tk()
+        win.geometry("700x500")
+        frame = tk.Canvas(win, width=750, height=750)
+        frame.place(anchor='center', relx=0.5, rely=0.5)
+        frame.pack()
 
-        img = mpimg.imread(DATASET_PATH + f'{SELECT_DATASET}_images/' + id_to_breed[id] + '/' + id)
-        imgplot = plt.imshow(img)
-        plt.show()
-        label = None
+        # Show image + resize to max size
+        image = Image.open(DATASET_PATH + f'{SELECT_DATASET}_images/' + id_to_breed[id] + '/' + id)
+        max_width = 250
+        pixels_x, pixels_y = tuple([int(max_width/image.size[0] * x) for x in image.size])
+        img = ImageTk.PhotoImage(image.resize((pixels_x, pixels_y))) 
+        l = tk.Label(frame, text='insert personality here', image = img, compound='bottom').pack()
 
-        while label is None or label.lower()[0] not in ['y', 'n']:
-            label = input(f'Do you like this dog {i/num_dogs*100:.3f} % (y/n): ')
-        plt.close()
+        def label_dog(m):
+            # m = 1 for yes, m = 0 for no
+            new_row = {'id': id, 'label': m}
+            rs.append(new_row)
+            win.destroy()
 
-        new_row = {'id': id, 'label': 1 if label.lower()[0] == 'y' else 0}
-        rs.append(new_row)
+        yes = tk.Button(frame, text="yes", command=lambda m=1: label_dog(m)).pack()
+        no = tk.Button(frame, text="no", command=lambda m=0: label_dog(m)).pack()
+        win.mainloop()
 
     labels = pd.DataFrame(rs)
 

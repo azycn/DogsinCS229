@@ -14,10 +14,9 @@ import json
 
 TARGET_DATASET_PATH = './../medium_dataset/'
 
-SELECT_DATASETS = ['test'] #, 'train', 'valid'
+SELECT_DATASETS = ['valid'] 
 
 PERSONALITY_TOGGLE = True
-
 
 def main():
 
@@ -29,7 +28,7 @@ def main():
             if breed != '.DS_Store':
                 img_files += [folder + f'/{breed}/' + i for i in os.listdir(folder + f'/{breed}')]
 
-    personalityfile = open('./../personalities.json', 'r')
+    personalityfile = open('./personalities.json', 'r')
     personalities = json.load(personalityfile)
 
     random.shuffle(img_files)    
@@ -39,9 +38,6 @@ def main():
             print(str(i) + " out of " + str(len(img_files)) + " images")
 
         id = img_file[-(str(img_file[::-1]).find('/')) : -4]
-        # print(id)
-        # if i > 5:
-        #     break
 
         win = tk.Tk()
         win.geometry("800x800")

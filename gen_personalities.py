@@ -1,7 +1,7 @@
 import os
 import random
 import json
-
+import numpy as np
 
 TARGET_DATASET_PATH = './medium_dataset'
 
@@ -21,8 +21,9 @@ def main():
             if breed != '.DS_Store':
                 dog_ids += [i[:-4] for i in os.listdir(folder + f'/{breed}')]
 
+    rng = np.random.default_rng()
     for dog_id in dog_ids:
-        personalities[dog_id] = [random.randint(1,10) for _ in range(6)]
+        personalities[dog_id] = [round(min(max(np.random.normal(5, 2), 1), 10)) for _ in range(6)]
     
     with open('personalities.json', '+w') as outfile:
         json.dump(personalities, outfile)

@@ -34,7 +34,6 @@ def main():
 
     for i, img_file in enumerate(img_files):
         id = img_file[-(str(img_file[::-1]).find('/')) : -4]
-        #print(str(reversed(img_file)))
         print(id)
         if i > 5:
             break
@@ -50,9 +49,10 @@ def main():
         img = ImageTk.PhotoImage(image.resize((pixels_x, pixels_y))) 
 
         p_vec = personalities[id]
-        #ty_vec[0])
 
-        personality = f'playfulness: {p_vec[0]}\nchase-proneness: {p_vec[1]}\ncuriosity: {p_vec[2]}\nsociability: {p_vec[3]}\naggressiveness: {p_vec[4]}\nshyness: {p_vec[5]}\n'
+        personality = ''
+        if PERSONALITY_TOGGLE:
+            personality = f'playfulness: {p_vec[0]}\nchase-proneness: {p_vec[1]}\ncuriosity: {p_vec[2]}\nsociability: {p_vec[3]}\naggressiveness: {p_vec[4]}\nshyness: {p_vec[5]}\n'
 
         l = tk.Label(frame, text=f'{personality}', image = img, compound='bottom').pack()
 
@@ -70,7 +70,6 @@ def main():
 
     out = '_'.join(SELECT_DATASETS)
     labels.to_csv(f'{out}_labels.csv', )
-    #labels.to_csv(f'{SELECT_DATASET}_labels.csv', index=False)
 
     personalityfile.close()
 

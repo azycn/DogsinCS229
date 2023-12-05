@@ -55,7 +55,7 @@ y_valid = np.zeros(np.shape(y_valid_mixed)[0])
 for index, row in y_valid_mixed.iterrows():
     y_valid[name_to_idx[row["id"]]] = row["label"]
 
-
+# Make data into tensors
 X_valid_t = torch.tensor(X_valid, dtype=torch.float32)
 y_valid_t = torch.tensor(y_valid, dtype=torch.float32).reshape(-1, 1)
     
@@ -70,12 +70,14 @@ class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
         # Input is output of resnet18 image classification model
-        self.fc1 = nn.Linear(INPUT_SIZE, 100) 
+        self.fc1 = nn.Linear(INPUT_SIZE, 500) 
+        self.fc11 = nn.Linear(500, 100)
         self.fc2 = nn.Linear(100, 1)
         self.act_out = nn.Sigmoid()
 
     def forward(self, x):
         x = F.relu(self.fc1(x))
+        x = F.relu(self.fc11(x))
         x = self.act_out(self.fc2(x))
         return x
 
@@ -85,7 +87,7 @@ class Net(nn.Module):
 
 model = Net()
 loss_fn = nn.MSELoss()
-optim = optim.Adam(model.parameters(), lr=0.001)
+optim = optim.Adam(model.parameters(), lr=0.0001, weight_decay=1e-2)
 
 def train_loop(x_train, y_train, x_valid, y_valid, model, loss_fn, optimizer, batch_size, epoch_max):
     n_examples = x_train.shape[0]
@@ -101,6 +103,7 @@ def train_loop(x_train, y_train, x_valid, y_valid, model, loss_fn, optimizer, ba
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+        
         # ------- Graphing --------
         y_pred_train = model(X_train_t)
         y_pred_valid = model(X_valid_t)
@@ -115,8 +118,8 @@ def train_loop(x_train, y_train, x_valid, y_valid, model, loss_fn, optimizer, ba
         print(f"loss = {loss}")
     return train_loss, valid_loss
 
-n_epochs = 40
-batch_size = 4
+n_epochs = 50
+batch_size = 100
 train_loss, valid_loss = train_loop(X_train_t, y_train_t, X_valid_t, y_valid_t, model, loss_fn, optim, batch_size, n_epochs)
 
 # ----------- Plotting data ---------------

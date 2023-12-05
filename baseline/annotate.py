@@ -5,56 +5,56 @@ import pandas as pd
 import tkinter as tk
 from PIL import Image, ImageTk
 import os
+import json
 
 # import tkinter as tk
 # from tkinter import Entry, Button
 # from PIL import Image, ImageTk
 
-DATASET_PATH = './../small_stanforddogdataset/'
+TARGET_DATASET_PATH = './../medium_dataset/'
 
-# def load_next_image():
-    
+SELECT_DATASETS = ['test', 'train', 'valid']
 
-# def submit_text():
-#     pass
-
-SELECT_DATASET = 'test'
+PERSONALITY_TOGGLE = True
 
 
 def main():
-    dataset_parts = os.listdir(DATASET_PATH + f'{SELECT_DATASET}_images')
 
-    image_files = [part for part in dataset_parts if 'images' in part]
-    
-    # training data only
-    id_to_breed = {}
-    all_ids = set()
-    for breed in image_files:
-        if breed == '.DS_Store':
-            continue
-        ids_in_breed = os.listdir(DATASET_PATH + f'{SELECT_DATASET}_images/' + breed)
-        ids_in_breed = [id for id in ids_in_breed if id != '.DS_Store']
-        all_ids = all_ids.union(set(ids_in_breed))
-        for id in ids_in_breed:
-            id_to_breed[id] = breed
-   
     rs = []
-    num_dogs = len(all_ids)
-    for i, id in enumerate(list(all_ids)):
+    img_files = []
+    # get all dog ids in dataset
+    for folder in [TARGET_DATASET_PATH + f'/{p}/Images'for p in SELECT_DATASETS]:
+        for breed in os.listdir(folder):
+            if breed != '.DS_Store':
+                img_files += [folder + f'/{breed}/' + i for i in os.listdir(folder + f'/{breed}')]
+
+
+    personalityfile = open('./../personalities.json', 'r')
+    personalities = json.load(personalityfile)
+
+    for i, img_file in enumerate(img_files):
+        id = img_file[-(str(img_file[::-1]).find('/')) : -4]
+        #print(str(reversed(img_file)))
+        print(id)
         if i > 5:
             break
         win = tk.Tk()
-        win.geometry("700x500")
+        win.geometry("800x800")
         frame = tk.Canvas(win, width=750, height=750)
         frame.place(anchor='center', relx=0.5, rely=0.5)
         frame.pack()
 
-        # Show image + resize to max size
-        image = Image.open(DATASET_PATH + f'{SELECT_DATASET}_images/' + id_to_breed[id] + '/' + id)
+        image = Image.open(img_file)
         max_width = 250
         pixels_x, pixels_y = tuple([int(max_width/image.size[0] * x) for x in image.size])
         img = ImageTk.PhotoImage(image.resize((pixels_x, pixels_y))) 
-        l = tk.Label(frame, text='insert personality here', image = img, compound='bottom').pack()
+
+        p_vec = personalities[id]
+        #ty_vec[0])
+
+        personality = f'playfulness: {p_vec[0]}\nchase-proneness: {p_vec[1]}\ncuriosity: {p_vec[2]}\nsociability: {p_vec[3]}\naggressiveness: {p_vec[4]}\nshyness: {p_vec[5]}\n'
+
+        l = tk.Label(frame, text=f'{personality}', image = img, compound='bottom').pack()
 
         def label_dog(m):
             # m = 1 for yes, m = 0 for no
@@ -68,9 +68,11 @@ def main():
 
     labels = pd.DataFrame(rs)
 
-    labels.to_csv(f'{SELECT_DATASET}_labels.csv', index=False)
+    out = '_'.join(SELECT_DATASETS)
+    labels.to_csv(f'{out}_labels.csv', )
+    #labels.to_csv(f'{SELECT_DATASET}_labels.csv', index=False)
 
-            
+    personalityfile.close()
 
 
 

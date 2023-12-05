@@ -2,17 +2,6 @@ import torch
 import torchvision.models as models
 import numpy as np
 
-model = models.resnet18(pretrained=True)
-
-
-from torchvision import transforms
-transform = transforms.Compose([
-    transforms.Resize(256),
-    transforms.CenterCrop(224),
-    transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-])
-
 from PIL import Image
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
@@ -20,6 +9,19 @@ import matplotlib.image as mpimg
 import os
 
 import pickle
+
+from torchvision import transforms
+
+
+
+model = models.resnet18(pretrained=True)
+
+transform = transforms.Compose([
+    transforms.Resize(256),
+    transforms.CenterCrop(224),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+])
 
 for group in ["train", "test", "valid"]:
     directory = f"small_stanforddogdataset/{group}_images"

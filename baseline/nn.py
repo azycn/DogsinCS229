@@ -12,6 +12,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
+
 # Data Paths
 data_path = "train_embeddings.csv"
 label_path = "train_labels.csv"
@@ -87,7 +88,11 @@ class Net(nn.Module):
 
 model = Net()
 loss_fn = nn.MSELoss()
-optim = optim.Adam(model.parameters(), lr=0.0001, weight_decay=1e-2)
+loss_nm = "MSE"
+reg = 1e-3
+lr = 0.000001
+optim = optim.Adam(model.parameters(), lr=lr, weight_decay=reg)
+optim_nm = "adam"
 
 def train_loop(x_train, y_train, x_valid, y_valid, model, loss_fn, optimizer, batch_size, epoch_max):
     n_examples = x_train.shape[0]
@@ -118,9 +123,11 @@ def train_loop(x_train, y_train, x_valid, y_valid, model, loss_fn, optimizer, ba
         print(f"loss = {loss}")
     return train_loss, valid_loss
 
-n_epochs = 50
+n_epochs = 100
 batch_size = 100
 train_loss, valid_loss = train_loop(X_train_t, y_train_t, X_valid_t, y_valid_t, model, loss_fn, optim, batch_size, n_epochs)
+
+
 
 # ----------- Plotting data ---------------
 epoch_nums = np.arange(n_epochs)
@@ -167,5 +174,7 @@ print(f"Train Accuracy = {train_acc}")
 print(f"Valid Accuracy = {valid_acc}")
 print(f"Test Accuracy = {test_acc}")
 
-
+# --- Save model ------------
+description = "alice_100"
+torch.save(model.state_dict(), f"{description}_optm_{optim_nm}_loss_{loss_nm}_EPOCHS_{n_epochs}_BATCH_{batch_size}_REG_{reg}_LR_{lr}_VALID_{valid_acc:.3f}_TEST_{test_acc:.3f}")
                     

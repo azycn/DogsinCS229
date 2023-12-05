@@ -5,6 +5,7 @@ import pandas as pd
 import tkinter as tk
 from PIL import Image, ImageTk
 import os
+import random
 import json
 
 # import tkinter as tk
@@ -13,7 +14,7 @@ import json
 
 TARGET_DATASET_PATH = './../medium_dataset/'
 
-SELECT_DATASETS = ['test', 'train', 'valid']
+SELECT_DATASETS = ['test'] #, 'train', 'valid'
 
 PERSONALITY_TOGGLE = True
 
@@ -28,15 +29,20 @@ def main():
             if breed != '.DS_Store':
                 img_files += [folder + f'/{breed}/' + i for i in os.listdir(folder + f'/{breed}')]
 
-
     personalityfile = open('./../personalities.json', 'r')
     personalities = json.load(personalityfile)
 
+    random.shuffle(img_files)    
+
     for i, img_file in enumerate(img_files):
+        if i % 10 == 0:
+            print(str(i) + " out of " + str(len(img_files)) + " images")
+
         id = img_file[-(str(img_file[::-1]).find('/')) : -4]
-        print(id)
-        if i > 5:
-            break
+        # print(id)
+        # if i > 5:
+        #     break
+
         win = tk.Tk()
         win.geometry("800x800")
         frame = tk.Canvas(win, width=750, height=750)
@@ -69,7 +75,7 @@ def main():
     labels = pd.DataFrame(rs)
 
     out = '_'.join(SELECT_DATASETS)
-    labels.to_csv(f'{out}_labels.csv', )
+    labels.to_csv(f'./labels/alice_{out}_labels.csv', )
 
     personalityfile.close()
 

@@ -59,7 +59,8 @@ for index, row in y_valid_mixed.iterrows():
 # Make data into tensors
 X_valid_t = torch.tensor(X_valid, dtype=torch.float32)
 y_valid_t = torch.tensor(y_valid, dtype=torch.float32).reshape(-1, 1)
-    
+
+print(y_valid_t.shape)
 
 
 # ------------ Define 2 Layer NN ---------------
@@ -89,8 +90,8 @@ class Net(nn.Module):
 model = Net()
 loss_fn = nn.MSELoss()
 loss_nm = "MSE"
-reg = 1e-3
-lr = 0.000001
+reg = 1e-4
+lr = 0.0001
 optim = optim.Adam(model.parameters(), lr=lr, weight_decay=reg)
 optim_nm = "adam"
 
@@ -101,7 +102,7 @@ def train_loop(x_train, y_train, x_valid, y_valid, model, loss_fn, optimizer, ba
     for epoch in range(epoch_max):
         print(f"\033[1m-----------Epoch {epoch}------------\033[0m")
         for i in range(0, (n_examples // batch_size) + 1):
-            x_slice = x_train[i:min(i+batch_size, n_examples), :]
+            x_slice = x_train[i:min(i+batch_size, n_examples), :] # might be a bug here in slice size
             y_slice = y_train[i:min(i+batch_size, n_examples)]
             y_pred = model(x_slice)
             loss = loss_fn(y_pred, y_slice)
@@ -110,11 +111,11 @@ def train_loop(x_train, y_train, x_valid, y_valid, model, loss_fn, optimizer, ba
             optimizer.step()
         
         # ------- Graphing --------
-        y_pred_train = model(X_train_t)
-        y_pred_valid = model(X_valid_t)
+        y_pred_train = model(x_train)
+        y_pred_valid = model(x_valid)
 
-        train_acc = (y_pred_train.round() == y_train_t).float().mean()
-        valid_acc = (y_pred_valid.round() == y_valid_t).float().mean()
+        train_acc = (y_pred_train.round() == y_train).float().mean()
+        valid_acc = (y_pred_valid.round() == y_valid).float().mean()
 
         train_loss[epoch] = train_acc
         valid_loss[epoch] = valid_acc

@@ -14,7 +14,7 @@ import json
 
 TARGET_DATASET_PATH = './../medium_dataset/'
 
-SELECT_DATASETS = ['valid'] 
+SELECT_DATASETS = ['train'] 
 
 PERSONALITY_TOGGLE = True
 

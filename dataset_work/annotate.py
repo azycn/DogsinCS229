@@ -16,7 +16,8 @@ TARGET_DATASET_PATH = './../medium_dataset/'
 
 SELECT_DATASETS = ['valid'] 
 
-PERSONALITY_TOGGLE = True
+PERSONALITY_TOGGLE = False
+IMAGE_TOGGLE = True
 
 def main():
 
@@ -51,6 +52,8 @@ def main():
         max_width = 250
         pixels_x, pixels_y = tuple([int(max_width/image.size[0] * x) for x in image.size])
         img = ImageTk.PhotoImage(image.resize((pixels_x, pixels_y))) 
+        if not IMAGE_TOGGLE:
+            img = ImageTk.PhotoImage(image.resize((1,1)))
 
         p_vec = personalities[id]
 
@@ -73,7 +76,7 @@ def main():
     labels = pd.DataFrame(rs)
 
     out = '_'.join(SELECT_DATASETS)
-    labels.to_csv(f'./labels/alice_{out}_labels.csv', )
+    labels.to_csv(f'./labels/vrushank_{out}_personality{PERSONALITY_TOGGLE}_image{IMAGE_TOGGLE}_labels.csv', )
 
     personalityfile.close()
 

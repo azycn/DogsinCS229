@@ -76,7 +76,7 @@ def main():
     labels = pd.DataFrame(rs)
 
     out = '_'.join(SELECT_DATASETS)
-    labels.to_csv(f'./labels/vrushank_{out}_personality{PERSONALITY_TOGGLE}_image{IMAGE_TOGGLE}_labels.csv', )
+    labels.to_csv(f'./labels/image_only/alice_{out}_personality{PERSONALITY_TOGGLE}_image{IMAGE_TOGGLE}_labels.csv', )
 
     personalityfile.close()
 

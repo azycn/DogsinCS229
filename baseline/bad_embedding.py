@@ -13,7 +13,6 @@ import pickle
 from torchvision import transforms
 
 
-
 model = models.resnet18(pretrained=True)
 
 transform = transforms.Compose([
@@ -24,13 +23,15 @@ transform = transforms.Compose([
 ])
 
 for group in ["train", "test", "valid"]:
-    directory = f"small_stanforddogdataset/{group}_images"
+    directory = f"../medium_dataset/{group}/Images"
     with torch.no_grad():
         model.eval()
         first = True
         index_map = {}
         idx = 0
         for breed in os.listdir(directory):
+            if breed==".DS_Store":
+                continue
             curPath = os.path.join(directory, breed)
             if not os.path.isfile(curPath):
                 for image in os.listdir(curPath):

@@ -9,20 +9,20 @@ import numpy as np
 # for each datapoint: one-hot vector with 1 at index of breed
 # labels = y/n
 
-DATASET_PATH = './small_stanforddogdataset/'
+DATASET_PATH = '../medium_dataset'
 
 def get_breed_map(SELECT_DATASET):
-    dataset_parts = os.listdir(DATASET_PATH + f'{SELECT_DATASET}_images')
-    image_files = [part for part in dataset_parts if 'images' in part]
+    dataset_parts = os.listdir(DATASET_PATH + f'/{SELECT_DATASET}/Images')
+    image_files = [part for part in dataset_parts if part != ".DS_Store"]
     
     # training data only
     id_to_breed = {}
     all_ids = set()
     for breed in image_files:
-        breed_name = breed.split("-")[1]
         if breed == '.DS_Store':
             continue
-        ids_in_breed = os.listdir(DATASET_PATH + f'{SELECT_DATASET}_images/' + breed)
+        breed_name = breed.split("-")[1]
+        ids_in_breed = os.listdir(DATASET_PATH + f'/{SELECT_DATASET}/Images/' + breed)
         ids_in_breed = [id for id in ids_in_breed if id != '.DS_Store']
         all_ids = all_ids.union(set(ids_in_breed))
         for id in ids_in_breed:
@@ -31,8 +31,8 @@ def get_breed_map(SELECT_DATASET):
     return id_to_breed
 
 
-def prep_data(DATASET):
-    imgid_to_label = pd.read_csv(f'./{DATASET}_labels.csv').set_index("id").to_dict()
+def prep_data(person, DATASET):
+    imgid_to_label = pd.read_csv(f'../dataset_work/labels/image_only/{person}_{DATASET}_personalityFalse_imageTrue_labels.csv').set_index("id").to_dict()
     imgid_to_breed = get_breed_map(DATASET)
     
     breed_to_idx = {}
@@ -61,23 +61,42 @@ def prep_data(DATASET):
 
 # TODO: keep the same breed_to_idx map for train and test. ok for now bc both maps r the same rn
 def main():
-    train_X_df, train_Y = prep_data('train')
-    test_X_df, test_Y = prep_data('valid')
+    train_X_df, train_Y = prep_data('alice', 'train')
+    test_X_df, test_Y = prep_data('alice', 'valid')
 
-    print("valid")
     train_x, train_y = train_X_df.to_numpy(), np.array([train_Y[k] for k in train_Y])
     test_x, test_y = test_X_df.to_numpy(), np.array([test_Y[k] for k in test_Y])
 
+    print("NAIVE BAYES ====================================")
+
     BNB = BernoulliNB()
     BNB.fit(train_x, train_y)
+
+
+    print("TRAIN==================")
+    bnb_train_preds = BNB.predict(train_x)
+    print(classification_report(train_y, bnb_train_preds))
+    bnb_score = BNB.score(train_x, train_y)
+    print("BNB Train Score: ", bnb_score)
+
+
+    print("TEST==================")
     bnb_preds = BNB.predict(test_x)
     print(classification_report(test_y, bnb_preds))
     # print(bnb_preds)
     bnb_score = BNB.score(test_x, test_y)
-    print("BNB: ", bnb_score)
+    print("BNB Test Score: ", bnb_score)
 
+
+    print("LOGISTIC REGRESSION ====================================")
     LR = LogisticRegression()
     LR.fit(train_x, train_y)
+
+    print("TEST==================")
+    lr_train_preds = LR.predict(train_x)
+    print(classification_report(train_y, lr_train_preds))
+
+    print("TEST==================")
     lr_preds = LR.predict(test_x)
     print(classification_report(test_y, lr_preds))
 
@@ -85,9 +104,6 @@ def main():
 
     lr_score = LR.score(test_x, test_y)
     print("LR: ", lr_score)
-
-
-
 
 
 if __name__ == "__main__":

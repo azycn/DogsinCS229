@@ -2,6 +2,7 @@ import torch
 import torchvision.models as models
 from torchvision import transforms
 import numpy as np
+import torch.nn as nn
 
 import json
 
@@ -13,7 +14,10 @@ NORMALIZE = False
 DATASET = "../medium_dataset"
 
 
-model = models.resnet18(pretrained=True)
+model = models.resnet152(pretrained=True)
+
+model = nn.Sequential(*list(model.children())[:-1]) 
+
 
 # This transform is specific to resnet18
 transform = transforms.Compose([
@@ -39,12 +43,13 @@ for group in ["train", "test", "valid"]:
                 in_img = Image.open(image_path)
                 pros_img = transform(in_img)
                 input_batch = torch.unsqueeze(pros_img, 0)
-                output = model(input_batch)
+                output = model(input_batch).reshape(1, -1)
                 probabilities = torch.nn.functional.softmax(output[0], dim=0) # normalized scores
                 if NORMALIZE:
                     embeddings[image[:-4]] = probabilities.tolist()
                 else:
                     embeddings[image[:-4]] = output.tolist()
+                print(len(embeddings[image[:-4]]))
             print(breed)
-with open('embeddings.json', 'w') as f:
+with open('resnet152_embeddings.json', 'w') as f:
     json.dump(embeddings, f)
